@@ -25,27 +25,23 @@ jobs:
   freeze:
     name: Freeze check
     runs-on: ubuntu-latest
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    defaults:
+    run:
+      working-directory: .
+    if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'stage' || github.base_ref == 'develop')
+    steps:
+      - name: Check if friday ( freeze )
+        run: |
+          DAY_OF_WEEK=$(date -u +%u)
+          echo "Current UTC day of week: $DAY_OF_WEEK"
+          echo "1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday, 7 = Sunday"
+          if [ "$DAY_OF_WEEK" -eq 5 ]; then
+            echo "::error::🚫 DEPLOY FREEZE: Merges to main/stage are blocked on Fridays!"
+            echo "::error::Please wait until Monday or request an exception from the team lead."
+            exit 1
+          fi
+          echo "✅ Not Friday today - merges are allowed!"
 
-    - name: Freeze check
-      if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'stage' || github.base_ref == 'develop')
-      steps:
-        - name: Check if friday ( freeze )
-          run: |
-            DAY_OF_WEEK=$(date -u +%u)
-
-            echo "Current UTC day of week: $DAY_OF_WEEK"
-            echo "1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday, 7 = Sunday"
-
-            if [ "$DAY_OF_WEEK" -eq 5 ]; then
-              echo "::error::🚫 DEPLOY FREEZE: Merges to main/stage are blocked on Fridays!"
-              echo "::error::Please wait until Monday or request an exception from the team lead."
-              exit 1
-            fi
-
-            echo "✅ Not Friday today - merges are allowed!"
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -64,6 +60,7 @@ jobs:
 
       - name: Run ESLint
         run: yarn lint
+ 
   build:
     name: Build and Install
     runs-on: ubuntu-latest
