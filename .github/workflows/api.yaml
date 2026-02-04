@@ -26,8 +26,8 @@ jobs:
     name: Freeze check
     runs-on: ubuntu-latest
     defaults:
-    run:
-      working-directory: .
+      run:
+        working-directory: .
     if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'stage' || github.base_ref == 'develop')
     steps:
       - name: Check if friday ( freeze )
@@ -60,7 +60,7 @@ jobs:
 
       - name: Run ESLint
         run: yarn lint
- 
+
   build:
     name: Build and Install
     runs-on: ubuntu-latest
