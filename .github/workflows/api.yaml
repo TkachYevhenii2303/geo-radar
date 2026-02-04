@@ -25,6 +25,10 @@ jobs:
   freeze:
     name: Deployment freeze check
     runs-on: ubuntu-latest
+    defaults:
+    run:
+      working-directory: .
+
     if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'stage' || github.base_ref == 'develop')
     steps:
       - name: Check if friday ( freeze )
