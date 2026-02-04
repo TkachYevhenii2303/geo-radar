@@ -3,8 +3,12 @@ name: Backend workflow
 on:
   push:
     branches: [main, stage, develop]
+    paths:
+      - "apps/api/**"
   pull_request:
     branches: [main, stage, develop]
+    paths:
+      - "apps/api/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
