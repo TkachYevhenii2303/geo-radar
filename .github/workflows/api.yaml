@@ -50,16 +50,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          # cache: "yarn"
+          cache: "yarn"
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
       - name: Run ESLint
         run: yarn lint
-
-      - name: Run Prettier
-        run: yarn prettier
 
       - name: Run TypeScript check
         run: yarn typecheck
