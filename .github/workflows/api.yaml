@@ -17,6 +17,10 @@ concurrency:
 env:
   NODE_VERSION: 20
 
+defaults:
+  run:
+    working-directory: apps/api
+
 jobs:
   freeze:
     name: Deployment freeze check
