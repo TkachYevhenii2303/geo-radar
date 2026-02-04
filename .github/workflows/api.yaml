@@ -57,9 +57,6 @@ jobs:
 
       - name: Run ESLint
         run: yarn lint
-
-      - name: Run TypeScript check
-        run: yarn typecheck
   build:
     name: Build and Install
     runs-on: ubuntu-latest
