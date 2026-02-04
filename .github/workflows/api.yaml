@@ -1,0 +1,75 @@
+name: Backend workflow
+
+on:
+  push:
+    branches: [main, stage, develop]
+  pull_request:
+    branches: [main, stage, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 20
+
+jobs:
+  freeze:
+    name: Deployment freeze check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'stage')
+    steps:
+      - name: Check if friday ( freeze )
+        run: |
+          DAY_OF_WEEK=$(date -u +%u)
+          echo "Current UTC day of week: $DAY_OF_WEEK"
+          echo "1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday, 7 = Sunday"
+          if [ "$DAY_OF_WEEK" -eq 5 ]; then
+            echo "::error::🚫 DEPLOY FREEZE: Merges to main/stage are blocked on Fridays!"
+            echo "::error::Please wait until Monday or request an exception from the team lead."
+            exit 1
+          fi
+
+          echo "✅ Not Friday today - merges are allowed!"
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run ESLint
+        run: yarn lint
+
+      - name: Run Prettier
+        run: yarn prettier
+
+      - name: Run TypeScript check
+        run: yarn typecheck
+  build:
+    name: Build and Install
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build api
+        run: yarn build
