@@ -1,0 +1,14 @@
+services:
+  # Postgres database
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
