@@ -1,3 +1,7 @@
+import { config } from 'dotenv';
+
+config();
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -27,4 +31,5 @@ async function bootstrap() {
     console.log(`📚 The Swagger is running on http://localhost:${port}/docs`);
   });
 }
+
 bootstrap();
