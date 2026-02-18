@@ -1,0 +1,41 @@
+.crawling_container {
+  width: 100%;
+  background: #6c757d;
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+
+  &__form {
+    display: flex;
+    width: 100%;
+    padding: 24px;
+    gap: 16px;
+    border-radius: 12px;
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      background: #c1c1c1;
+      border-radius: 12px;
+
+      &:active {
+        outline: none;
+        border: none;
+      }
+    }
+
+    button {
+      width: 20%;
+      padding: 12px;
+      border-radius: 12px;
+      background: #c1c1c1;
+      border-radius: 12px;
+      cursor: pointer;
+
+      &:active {
+        outline: none;
+        border: none;
+      }
+    }
+  }
+}
