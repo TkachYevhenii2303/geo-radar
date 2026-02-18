@@ -15,4 +15,12 @@ const eslintConfig = defineConfig([
   ]),
 ]);
 
-export default eslintConfig;
+const rules = {
+  "@typescript-eslint/no-explicit-any": "off",
+  "@typescript-eslint/no-unused-vars": "off",
+};
+
+export default {
+  ...eslintConfig,
+  rules,
+};

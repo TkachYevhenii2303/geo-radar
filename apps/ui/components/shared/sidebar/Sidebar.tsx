@@ -2,8 +2,7 @@
 import Link from "next/link";
 import styles from "./sidebar.module.scss";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
-import { SettingsIcon, BellIcon } from "lucide-react";
+import { ShieldCheckIcon, ToolCaseIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -13,8 +12,8 @@ interface SidebarProps {
 }
 
 const sidebarItems: SidebarProps[] = [
-  //   { icon: <SettingsIcon />, title: "Settings", href: "/settings" },
-  //   { icon: <BellIcon />, title: "Notifications", href: "/notifications" },
+  { icon: <ToolCaseIcon />, title: "Domain crawling", href: "/crawling" },
+  { icon: <ShieldCheckIcon />, title: "Health", href: "/health" },
 ];
 
 export function Sidebar() {
@@ -23,7 +22,6 @@ export function Sidebar() {
 
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.filter} />
       <nav className={styles.navigation}>
         {sidebarItems.map((item) => (
           <Link
