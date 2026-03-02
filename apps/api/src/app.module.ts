@@ -7,6 +7,7 @@ import { HealthModule } from './modules/health/health.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfig } from './configs/database/typeorm.config';
 import { CrawlerModule } from './modules/crawler/crawler.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CrawlerModule } from './modules/crawler/crawler.module';
     }),
     HealthModule,
     CrawlerModule,
+    AuthModule,
   ],
 
   controllers: [AppController],
