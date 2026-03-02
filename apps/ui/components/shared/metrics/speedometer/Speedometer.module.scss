@@ -1,0 +1,59 @@
+.speedometer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+}
+
+.gauge {
+  width: 100%;
+  height: auto;
+  max-width: 280px;
+}
+
+.arcSegment {
+  stroke-dasharray: var(--arc-length);
+  stroke-dashoffset: var(--arc-length);
+  animation: revealArc var(--arc-duration, 0.4s) ease-out forwards;
+  animation-delay: var(--arc-delay, 0s);
+}
+
+.needle {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+.scoreValue {
+  font-size: 24px;
+  font-weight: 600;
+  fill: #4a4a4a;
+}
+
+.scoreLabel {
+  font-size: 10px;
+  fill: #4a4a4a;
+}
+
+.gradientFill {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out 0.3s forwards;
+}
+
+@keyframes revealArc {
+  from {
+    stroke-dashoffset: var(--arc-length);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -47,7 +47,7 @@ export function HealthContainer({}: HealthContainerProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [getLiveness, getReadiness]);
+  }, []);
 
   useEffect(() => {
     fetchHealth();

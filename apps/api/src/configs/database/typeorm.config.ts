@@ -13,7 +13,7 @@ export class TypeOrmConfig implements TypeOrmOptionsFactory {
       migrations: ['dist/configs/database/migrations/*.{js,ts}'],
       migrationsTableName: 'migrations',
       migrationsRun: false,
-      synchronize: false,
+      synchronize: true,
       logging: true,
     };
   }
