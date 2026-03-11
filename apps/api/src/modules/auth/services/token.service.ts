@@ -148,6 +148,8 @@ export class TokenService {
       throw new UnauthorizedException('Refresh token not found');
     }
 
+    await this.deleteToken(jti);
+
     const existingEntity = await this.userRepository.findOne({
       where: { id: refreshTokenEntity.userId },
       relations: ['refreshTokens'],

@@ -1,5 +1,5 @@
-import styles from "../auth.module.scss";
+import { SignupContainer } from "@/components/auth/signup/SignupContainer";
 
-export default function Page() {
-  return <div className={styles.container}></div>;
+export default function SignupPage() {
+  return <SignupContainer />;
 }

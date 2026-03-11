@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { RegisterDto } from './dtos/register.dto';
+import { LoginDto } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -73,12 +74,18 @@ export class AuthService {
     }
   }
 
-  async login(credentials: any): Promise<any> {
+  async login(
+    credentials: LoginDto,
+  ): Promise<{ accessToken: string; refreshToken: string; expiresIn: number }> {
     const { email, password } = credentials;
     const existingEntity = await this.userRepository.findOne({
       where: { email },
       relations: ['credentials'],
     });
+
+    if (!existingEntity) {
+      throw new BadRequestException('The provided credentials are incorrect');
+    }
 
     const { passwordHash } = existingEntity.credentials;
     const isPasswordCorrect = await this.passwordService.verify(
@@ -86,7 +93,7 @@ export class AuthService {
       passwordHash,
     );
 
-    if (!isPasswordCorrect || !existingEntity) {
+    if (!isPasswordCorrect) {
       throw new BadRequestException('The provided credentials are incorrect');
     }
 
@@ -107,6 +114,8 @@ export class AuthService {
       where: { email },
       relations: ['refreshTokens'],
     });
+
+    if (!existingEntity) return;
 
     for (const refreshToken of existingEntity.refreshTokens) {
       await this.tokenService.deleteToken(refreshToken.jti);
