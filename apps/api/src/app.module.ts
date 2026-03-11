@@ -17,7 +17,7 @@ import { AuthModule } from './modules/auth/auth.module';
         {
           name: 'default',
           ttl: minutes(1),
-          limit: 5,
+          limit: 100,
         },
       ],
     }),

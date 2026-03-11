@@ -3,7 +3,6 @@ import {
   ExceptionFilter,
   ArgumentsHost,
   HttpStatus,
-  HttpException,
 } from '@nestjs/common';
 import { Logger } from '@nestjs/common';
 import { Response } from 'express';
