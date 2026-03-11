@@ -30,19 +30,20 @@ const chartsData = [
 
 export default function Page() {
   return (
-    <Container size="xl" py="xl" className={styles.page}>
-      <Grid gutter="md">
-        {chartsData.map((chart) => (
-          <Grid.Col key={chart.title} span={{ base: 12, sm: 6, lg: 3 }}>
-            <SpeedChart
-              key={chart.title}
-              title={chart.title}
-              value={chart.value}
-              tooltip={chart.tooltip}
-            />
-          </Grid.Col>
-        ))}
-      </Grid>
-    </Container>
+    // <Container size="xl" py="xl" className={styles.page}>
+    //   <Grid gutter="md">
+    //     {chartsData.map((chart) => (
+    //       <Grid.Col key={chart.title} span={{ base: 12, sm: 6, lg: 3 }}>
+    //         <SpeedChart
+    //           key={chart.title}
+    //           title={chart.title}
+    //           value={chart.value}
+    //           tooltip={chart.tooltip}
+    //         />
+    //       </Grid.Col>
+    //     ))}
+    //   </Grid>
+    // </Container>
+    <div className={styles.page}></div>
   );
 }
