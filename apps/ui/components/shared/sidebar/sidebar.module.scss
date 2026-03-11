@@ -1,72 +1,396 @@
+// ── Design tokens ────────────────────────────────────────────────────────────
+$rail-width: 64px;
+$panel-width: 192px;
+$sidebar-radius: 16px;
+$transition-speed: 0.25s;
+$color-active-bg: #3b5bdb;
+$color-active-text: #fff;
+$color-hover-bg: #f1f3f5;
+$color-text-primary: #1a1b1e;
+$color-text-muted: #868e96;
+$color-border: #e9ecef;
+$color-bg: #ffffff;
+$color-avatar-bg: #3b5bdb;
+
+// ── Hamburger (mobile only) ───────────────────────────────────────────────────
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 300;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $color-border;
+  border-radius: 10px;
+  background: $color-bg;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  color: $color-text-primary;
+  transition: background $transition-speed ease;
+
+  &:hover {
+    background: $color-hover-bg;
+  }
+}
+
+// ── Backdrop (mobile overlay) ─────────────────────────────────────────────────
+.backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 199;
+  backdrop-filter: blur(2px);
+}
+
+// ── Sidebar container ─────────────────────────────────────────────────────────
 .sidebar {
   position: fixed;
-  left: 24px;
-  top: 24px;
-  height: calc(100vh - 48px);
-  width: 260px;
-  padding: 20px;
+  left: 16px;
+  top: 16px;
+  height: calc(100vh - 32px);
+  width: calc(#{$rail-width} + #{$panel-width});
+  display: flex;
+  flex-direction: row;
+  border-radius: $sidebar-radius;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  z-index: 200;
+  transition: width $transition-speed ease;
+}
+
+// Collapsed state — panel hides, only rail stays
+.sidebar.collapsed {
+  width: $rail-width;
+
+  .panel {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+// ── Icon rail ─────────────────────────────────────────────────────────────────
+.rail {
+  width: $rail-width;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  z-index: 100;
-  border-radius: 12px;
+  align-items: center;
+  padding: 12px 0;
+  border-right: 1px solid $color-border;
+  gap: 4px;
+}
+
+.railLogo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: $color-active-bg;
+  color: $color-active-text;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.railNav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  width: 100%;
+  padding: 0 8px;
+}
+
+.railBottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  padding: 0 8px;
+}
+
+// Shared rail button/link
+.railItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: $color-text-muted;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background $transition-speed ease, color $transition-speed ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: $color-hover-bg;
+    color: $color-text-primary;
+  }
+
+  &.active {
+    background: $color-active-bg;
+    color: $color-active-text;
+  }
+}
+
+.avatarBtn {
+  margin-top: 4px;
+  cursor: default;
+}
+
+// Rail-level toggle button — always visible, rotates to show direction
+.railToggle {
+  margin-top: 4px;
+  border-top: 1px solid $color-border;
+  border-radius: 0 0 calc($sidebar-radius - 4px) calc($sidebar-radius - 4px);
+  width: 100%;
+  height: 32px;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+}
+
+.toggleIcon {
+  transition: transform $transition-speed ease;
+}
+
+.toggleIconRotated {
+  transform: rotate(180deg);
+}
+
+// ── Expandable text panel ─────────────────────────────────────────────────────
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  opacity: 1;
+  transition: opacity $transition-speed ease;
+  min-width: 0;
+}
 
-  // filter: blur(1px) sepia(35%);
-  // background: #020024;
-  // background: #020024;
-  // background: linear-gradient(
-  //   180deg,
-  //   rgba(2, 0, 36, 1) 0%,
-  //   rgba(9, 9, 121, 1) 35%,
-  //   rgba(0, 212, 255, 1) 100%
-  // );
+// Panel header: app name + collapse button
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 12px 12px;
+  flex-shrink: 0;
+}
 
-  background: #6c757d;
+.brandName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: $color-text-primary;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+}
 
-  .navigation {
+.collapseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid $color-border;
+  background: transparent;
+  color: $color-text-muted;
+  cursor: pointer;
+  transition: background $transition-speed ease, color $transition-speed ease, transform $transition-speed ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: $color-hover-bg;
+    color: $color-text-primary;
+  }
+}
+
+// Menu section
+.menuSection {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.sectionLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: $color-text-muted;
+  padding: 4px 8px 6px;
+  margin: 0;
+}
+
+.panelNav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+// Shared panel link/button
+.panelItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: $color-text-muted;
+  font-size: 0.825rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background $transition-speed ease, color $transition-speed ease;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
+  text-align: left;
+
+  &:hover {
+    background: $color-hover-bg;
+    color: $color-text-primary;
+  }
+
+  &.active {
+    background: $color-active-bg;
+    color: $color-active-text;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// Bottom utilities block
+.panelBottom {
+  padding: 8px;
+  border-top: 1px solid $color-border;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+// User profile card
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-top: 4px;
+  cursor: default;
+
+  &:hover {
+    background: $color-hover-bg;
+  }
+}
+
+.profileInfo {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.profileName {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $color-text-primary;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileEmail {
+  font-size: 0.7rem;
+  color: $color-text-muted;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ── Avatar circle ─────────────────────────────────────────────────────────────
+.avatarCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: $color-avatar-bg;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+// Tablet: collapsed by default (handled in JS via matchMedia)
+// The sidebar width transition handles the visual collapse
+
+// Mobile: sidebar is off-screen, hamburger appears
+@media (max-width: 767px) {
+  .hamburger {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-    flex: 1;
+  }
 
-    &__item {
-      display: flex;
-      align-items: center;
-      border-radius: 8px;
-      color: rgba(255, 255, 255, 0.6);
-      text-decoration: none;
-      transition: all 0.2s ease;
-      position: relative;
-      overflow: hidden;
-      gap: 16px;
-      padding: 8px 16px;
-      letter-spacing: 0.1px;
+  .backdrop {
+    display: block;
+  }
 
-      &:hover {
-        color: #fff;
-        background: rgba(20, 20, 20, 0.596);
-      }
+  .sidebar {
+    left: calc(-1 * #{$rail-width} - #{$panel-width} - 32px);
+    transition: left $transition-speed ease, width $transition-speed ease;
+    width: calc(#{$rail-width} + #{$panel-width});
 
-      // &.active {
-      //   color: var(--neon-cyan);
-      //   background: rgba(0, 245, 255, 0.1);
-      //   box-shadow:
-      //     inset 0 0 20px rgba(0, 245, 255, 0.1),
-      //     0 0 15px rgba(0, 245, 255, 0.1);
+    // Force expanded when open on mobile
+    .panel {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
 
-      //   &::before {
-      //     content: "";
-      //     position: absolute;
-      //     left: 0;
-      //     top: 50%;
-      //     transform: translateY(-50%);
-      //     width: 3px;
-      //     height: 60%;
-      //     background: var(--neon-cyan);
-      //     border-radius: 0 4px 4px 0;
-      //     box-shadow: var(--glow-cyan);
-      //   }
-      // }
+  .sidebar.mobileOpen {
+    left: 16px;
+  }
+
+  // Override collapsed state on mobile when open
+  .sidebar.mobileOpen.collapsed {
+    width: calc(#{$rail-width} + #{$panel-width});
+
+    .panel {
+      opacity: 1;
+      pointer-events: auto;
     }
   }
 }
