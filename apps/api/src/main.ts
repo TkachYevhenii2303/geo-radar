@@ -6,9 +6,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { GlobalErrorHandlerFilter } from './configs/handlers/global-error-handler.filter';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(cookieParser());
   app.setGlobalPrefix('api');
 
   const configs = new DocumentBuilder()
@@ -22,7 +24,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new GlobalErrorHandlerFilter());
   app.enableCors({
-    origin: '*',
+    origin: process.env.FRONTEND_URLS?.split(',') ?? ['http://localhost:3000'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
     exposedHeaders: ['Content-Range', 'Set-Cookie'],
