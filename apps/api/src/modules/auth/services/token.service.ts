@@ -1,12 +1,16 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
-import { JwtPayload } from '../interfaces/jwt-payload.interface';
-import * as crypto from 'crypto';
+import {
+  CredentialsJwtPayload,
+  JwtPayload,
+  JwtResponse,
+} from '../interfaces/jwt-payload.interface';
 import { RefreshTokens } from '../entities/refresh-tokens.entity';
 import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
+import * as crypto from 'crypto';
 
 const tokenType = {
   access: 'access',
@@ -34,19 +38,9 @@ export class TokenService {
   }
 
   async generateTokens(
-    {
-      userId,
-      email,
-    }: {
-      userId: string;
-      email: string;
-    },
+    { userId, email }: CredentialsJwtPayload,
     entityManager?: EntityManager,
-  ): Promise<{
-    accessToken: string;
-    refreshToken: string;
-    expiresIn: number;
-  }> {
+  ): Promise<JwtResponse> {
     const accessPayload: JwtPayload & {
       jti: string;
       type: typeof tokenType.access;
@@ -134,7 +128,7 @@ export class TokenService {
   async refreshToken(
     refreshToken: string,
     entityManager?: EntityManager,
-  ): Promise<any> {
+  ): Promise<JwtResponse> {
     const { jti } = await this.verifyToken(refreshToken, tokenType.refresh);
     const refreshTokensRepository =
       entityManager?.getRepository(RefreshTokens) ??
@@ -161,7 +155,10 @@ export class TokenService {
       email: existingEntity.email,
     });
 
-    return { accessToken };
+    return {
+      accessToken,
+      expiresIn: this.parseTtlToSeconds(this.accessTokenTtl),
+    } as JwtResponse;
   }
 
   async deleteToken(jti: string): Promise<any> {

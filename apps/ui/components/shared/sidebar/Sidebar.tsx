@@ -51,7 +51,7 @@ function getInitials(name: string | null | undefined, email: string): string {
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { profile, logout } = useAuth();
 
   // Start expanded; set to collapsed on small screens after mount (SSR-safe)
   const [isExpanded, setIsExpanded] = useState(true);
@@ -63,7 +63,9 @@ export function Sidebar() {
     if (window.innerWidth < 1024) setIsExpanded(false);
 
     const saved = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
     const dark = saved ? saved === "dark" : prefersDark;
     setIsDark(dark);
     document.documentElement.dataset.theme = dark ? "dark" : "";
@@ -111,11 +113,10 @@ export function Sidebar() {
     [isDark, toggleTheme, handleLogout]
   );
 
-  const initials = getInitials(user?.name, user?.email ?? "GR");
+  const initials = getInitials(profile?.name, profile?.email ?? "GR");
 
   return (
     <Fragment>
-      {/* Mobile hamburger — only visible at ≤767px via CSS */}
       <button
         className={styles.hamburger}
         onClick={() => setMobileOpen(true)}
@@ -124,7 +125,6 @@ export function Sidebar() {
         <MenuIcon size={20} />
       </button>
 
-      {/* Backdrop for mobile overlay */}
       {mobileOpen && (
         <div
           className={styles.backdrop}
@@ -140,7 +140,6 @@ export function Sidebar() {
         })}
         aria-label="Main navigation"
       >
-        {/* ── Icon rail (always visible) ── */}
         <div className={styles.rail}>
           <div className={styles.railLogo} aria-hidden="true">
             <RadarIcon size={24} />
@@ -182,16 +181,14 @@ export function Sidebar() {
               );
             })}
 
-            {/* Avatar */}
             <div
               className={cn(styles.railItem, styles.avatarBtn)}
-              title={user?.name ?? user?.email ?? "Profile"}
+              title={profile?.name ?? profile?.email ?? "Profile"}
               aria-label="User profile"
             >
               <span className={styles.avatarCircle}>{initials}</span>
             </div>
 
-            {/* Rail-level expand/collapse toggle — always clickable */}
             <button
               className={cn(styles.railItem, styles.railToggle)}
               onClick={toggleExpanded}
@@ -208,9 +205,7 @@ export function Sidebar() {
           </div>
         </div>
 
-        {/* ── Expandable text panel ── */}
         <div className={styles.panel} aria-hidden={!isExpanded}>
-          {/* Header */}
           <div className={styles.panelHeader}>
             <div className={styles.brandName}>
               <RadarIcon size={18} />
@@ -225,7 +220,6 @@ export function Sidebar() {
             </button>
           </div>
 
-          {/* Menu section */}
           <div className={styles.menuSection}>
             <p className={styles.sectionLabel}>Menu</p>
             <nav className={styles.panelNav} aria-label="Main menu">
@@ -250,7 +244,6 @@ export function Sidebar() {
             </nav>
           </div>
 
-          {/* Bottom utilities */}
           <div className={styles.panelBottom}>
             {bottomActions.map((item) => {
               const Icon = item.icon;
@@ -266,12 +259,11 @@ export function Sidebar() {
               );
             })}
 
-            {/* User profile */}
             <div className={styles.profile}>
               <div className={styles.avatarCircle}>{initials}</div>
               <div className={styles.profileInfo}>
-                <p className={styles.profileName}>{user?.name ?? "User"}</p>
-                <p className={styles.profileEmail}>{user?.email ?? ""}</p>
+                <p className={styles.profileName}>{profile?.name ?? ""}</p>
+                <p className={styles.profileEmail}>{profile?.email ?? ""}</p>
               </div>
             </div>
           </div>

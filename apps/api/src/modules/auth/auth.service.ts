@@ -8,6 +8,7 @@ import { PasswordService } from './services/password.service';
 import { Credentials } from './entities/credentials.entity';
 import { RegisterResponseDto } from './dtos/responses.dto';
 import { TokenService } from './services/token.service';
+import { JwtResponse } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -105,7 +106,7 @@ export class AuthService {
     return tokens;
   }
 
-  async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
+  async refreshToken(refreshToken: string): Promise<JwtResponse> {
     return await this.tokenService.refreshToken(refreshToken);
   }
 

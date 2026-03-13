@@ -22,15 +22,11 @@ export class GlobalErrorHandlerFilter implements ExceptionFilter {
         exception.response?.statusCode ||
         HttpStatus.INTERNAL_SERVER_ERROR;
 
-      return response
-        .json({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message:
-            exception.response ??
-            exception.response?.message ??
-            'Internal server error',
-        })
-        .status(status);
+      const message = exception.response?.message ?? 'Internal server error';
+      return response.status(status).json({
+        statusCode: status,
+        message,
+      });
     }
 
     return response

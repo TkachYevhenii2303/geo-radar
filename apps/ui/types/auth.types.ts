@@ -31,5 +31,6 @@ export interface RegisterResponse {
   id: string;
   email: string;
   name: string;
-  tokens: AuthTokens;
+  accessToken: string;
+  expiresIn: number;
 }

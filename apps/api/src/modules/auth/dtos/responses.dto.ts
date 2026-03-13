@@ -34,5 +34,5 @@ export class RegisterResponseDto {
     },
   })
   @Expose()
-  tokens: { accessToken: string; refreshToken: string };
+  tokens: { accessToken: string; refreshToken: string; expiresIn: number };
 }

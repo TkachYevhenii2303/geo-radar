@@ -17,10 +17,8 @@ const register = async (
   return axiosInstance.post("/auth/register", payload);
 };
 
-const refreshToken = async (
-  token: string
-): Promise<{ accessToken: string }> => {
-  return axiosInstance.post("/auth/refresh-token", { refreshToken: token });
+const refreshToken = async (): Promise<{ accessToken: string }> => {
+  return axiosInstance.post("/auth/refresh-token");
 };
 
 const logout = async (): Promise<void> => {

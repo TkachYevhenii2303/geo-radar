@@ -7,6 +7,9 @@ import {
   Body,
   Request,
   UseGuards,
+  Res,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -22,6 +25,10 @@ import { ApiResponse } from '@nestjs/swagger';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
 import { RegisterResponseDto } from './dtos/responses.dto';
+import {
+  Response as ExpressResponse,
+  Request as ExpressRequest,
+} from 'express';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -45,8 +52,28 @@ export class AuthController {
   })
   async register(
     @Body() registerDto: RegisterDto,
-  ): Promise<RegisterResponseDto> {
-    return this.authService.register(registerDto);
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ): Promise<
+    Omit<RegisterResponseDto, 'tokens'> & {
+      accessToken: string;
+      expiresIn: number;
+    }
+  > {
+    const result = await this.authService.register(registerDto);
+    res.cookie('refreshToken', result.tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'strict',
+      path: '/',
+    });
+
+    const { tokens, ...user } = result;
+    return {
+      ...user,
+      accessToken: tokens.accessToken,
+      expiresIn: tokens.expiresIn,
+    };
   }
 
   @Post('login')
@@ -61,8 +88,20 @@ export class AuthController {
   })
   async login(
     @Body() loginDto: LoginDto,
-  ): Promise<{ accessToken: string; refreshToken: string; expiresIn: number }> {
-    return this.authService.login(loginDto);
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ): Promise<{ accessToken: string; expiresIn: number }> {
+    const { accessToken, refreshToken, expiresIn } =
+      await this.authService.login(loginDto);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'strict',
+      path: '/',
+    });
+
+    return { accessToken, expiresIn };
   }
 
   @Post('refresh-token')
@@ -76,9 +115,23 @@ export class AuthController {
     description: 'Invalid refresh token',
   })
   async refreshToken(
-    @Body() body: { refreshToken: string },
-  ): Promise<{ accessToken: string }> {
-    return this.authService.refreshToken(body.refreshToken);
+    @Req() req: ExpressRequest,
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ): Promise<{ accessToken: string; expiresIn: number }> {
+    const refreshToken = req.cookies['refreshToken'];
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
+
+    const { accessToken, expiresIn } =
+      await this.authService.refreshToken(refreshToken);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    return { accessToken, expiresIn };
   }
 
   @Post('logout')
@@ -93,8 +146,12 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: 'Invalid or missing token',
   })
-  async logout(@Request() req: { user: { email: string } }): Promise<void> {
-    return this.authService.logout(req.user.email);
+  async logout(
+    @Request() req: any,
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ): Promise<void> {
+    await this.authService.logout(req.user.email);
+    res.clearCookie('refreshToken', { path: '/' });
   }
 
   @Get('me')

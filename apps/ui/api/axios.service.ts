@@ -1,20 +1,31 @@
 import axios, {
   AxiosError,
+  AxiosRequestConfig,
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
 import { HttpStatusCode } from "axios";
+import authService from "./auth.service";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api",
+  withCredentials: true,
 });
+
+let getToken = (): string | null => null;
+let onRefresh = (token: string): void => {};
+
+export function setupInterceptors(
+  tokenGetter: () => string | null,
+  tokenSetter: (t: string | null) => void
+) {
+  getToken = tokenGetter;
+  onRefresh = tokenSetter;
+}
 
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("authToken")
-        : null;
+    const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -25,18 +36,21 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response.data,
-  (error: AxiosError) => {
-    // Do NOT redirect here — AuthContext owns auth state and redirect logic.
-    // Redirecting in an interceptor causes race conditions with context cleanup
-    // and infinite loops on auth pages.
-    if (error.response?.status === HttpStatusCode.Unauthorized) {
-      // Clear stale tokens so subsequent requests don't resend them
-      if (typeof localStorage !== "undefined") {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("refreshToken");
-      }
-      if (typeof document !== "undefined") {
-        document.cookie = "authToken=; path=/; max-age=0";
+  async (error: AxiosError) => {
+    const config = error.config as AxiosRequestConfig & { _retry?: boolean };
+
+    if (
+      error.response?.status === HttpStatusCode.Unauthorized &&
+      !config._retry
+    ) {
+      config._retry = true;
+      try {
+        const { accessToken } = await authService.refreshToken();
+        onRefresh(accessToken);
+        return axiosInstance.request(config);
+      } catch {
+        onRefresh(null as unknown as string);
+        return Promise.reject(error);
       }
     }
     return Promise.reject(error);
