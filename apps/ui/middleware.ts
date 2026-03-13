@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const AUTH_TOKEN_KEY = "authToken";
+const REFRESH_TOKEN_KEY = "refreshToken";
 
 const protectedPaths = ["/metrics", "/crawling", "/health"];
 const authPaths = ["/login", "/signup"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get(AUTH_TOKEN_KEY)?.value;
+  const token = request.cookies.get(REFRESH_TOKEN_KEY)?.value;
 
   const isProtected =
-    pathname === "/" ||
-    protectedPaths.some((p) => pathname.startsWith(p));
+    pathname === "/" || protectedPaths.some((p) => pathname.startsWith(p));
 
   const isAuthPage = authPaths.some((p) => pathname.startsWith(p));
 

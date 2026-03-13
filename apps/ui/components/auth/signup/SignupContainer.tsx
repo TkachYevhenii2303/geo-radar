@@ -60,7 +60,9 @@ export function SignupContainer() {
   return (
     <Card className={styles.card} shadow="sm" withBorder>
       <Text className={styles.title}>Create an account</Text>
-      <Text className={styles.subtitle}>Join GEO Radar and start monitoring</Text>
+      <Text className={styles.subtitle}>
+        Join GEO Radar and start monitoring
+      </Text>
 
       <form
         className={styles.form}
@@ -117,8 +119,7 @@ export function SignupContainer() {
       </form>
 
       <p className={styles.footer}>
-        Already have an account?{" "}
-        <Link href="/login">Sign in</Link>
+        Already have an account? <Link href="/login">Sign in</Link>
       </p>
     </Card>
   );

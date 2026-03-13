@@ -16,25 +16,37 @@ import {
   RegisterPayload,
   RegisterResponse,
 } from "@/types/auth.types";
-
-const AUTH_TOKEN_KEY = "authToken";
-const REFRESH_TOKEN_KEY = "refreshToken";
+import { setupInterceptors } from "@/api/axios.service";
 
 interface AuthContextValue {
-  user: AuthUser | null;
+  profile: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<LoginResponse>;
   register: (payload: RegisterPayload) => Promise<RegisterResponse>;
   logout: () => Promise<void>;
+  token: string | null;
+  updateToken: (token: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [profile, setProfile] = useState<AuthUser | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+
   const [isLoading, setIsLoading] = useState(true);
   const mountedRef = useRef(true);
+  const tokenRef = useRef<string | null>(null);
+
+  const updateToken = useCallback((t: string | null) => {
+    tokenRef.current = t;
+    setToken(t);
+  }, []);
+
+  useEffect(() => {
+    setupInterceptors(() => tokenRef.current, updateToken);
+  }, [updateToken]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -44,55 +56,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
-
     authService
-      .getMe()
+      .refreshToken()
+      .then(({ accessToken }) => {
+        updateToken(accessToken);
+        return authService.getMe();
+      })
       .then((me) => {
-        if (mountedRef.current) setUser(me);
+        if (mountedRef.current) setProfile(me);
       })
       .catch(() => {
-        // Token is invalid — clear everything; redirect is handled by the
-        // protected layout's auth check, not here.
-        localStorage.removeItem(AUTH_TOKEN_KEY);
-        localStorage.removeItem(REFRESH_TOKEN_KEY);
-        document.cookie = `${AUTH_TOKEN_KEY}=; path=/; max-age=0`;
+        updateToken(null);
+        setProfile(null);
       })
       .finally(() => {
         if (mountedRef.current) setIsLoading(false);
       });
   }, []);
 
-  const storeTokens = (
-    accessToken: string,
-    refreshToken: string,
-    expiresIn: number
-  ) => {
-    localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-    document.cookie = `${AUTH_TOKEN_KEY}=${accessToken}; path=/; max-age=${expiresIn}; SameSite=Lax`;
-  };
-
-  const clearTokens = () => {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    document.cookie = `${AUTH_TOKEN_KEY}=; path=/; max-age=0`;
-  };
-
   const login = useCallback(
     async (payload: LoginPayload): Promise<LoginResponse> => {
       const response = await authService.login(payload);
-      storeTokens(
-        response.accessToken,
-        response.refreshToken,
-        response.expiresIn
-      );
+      updateToken(response.accessToken);
       const me = await authService.getMe();
-      if (mountedRef.current) setUser(me);
+      if (mountedRef.current) setProfile(me);
       return response;
     },
     []
@@ -101,14 +88,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = useCallback(
     async (payload: RegisterPayload): Promise<RegisterResponse> => {
       const response = await authService.register(payload);
-      storeTokens(
-        response.tokens.accessToken,
-        response.tokens.refreshToken,
-        response.tokens.expiresIn
-      );
+      updateToken(response.accessToken);
       if (mountedRef.current) {
-        setUser({ id: response.id, email: response.email, name: response.name });
+        setProfile({
+          id: response.id,
+          email: response.email,
+          name: response.name,
+        });
       }
+
       return response;
     },
     []
@@ -118,20 +106,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await authService.logout();
     } finally {
-      clearTokens();
-      if (mountedRef.current) setUser(null);
+      updateToken(null);
+      if (mountedRef.current) setProfile(null);
     }
   }, []);
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        isAuthenticated: !!user,
+        profile,
+        isAuthenticated: !!token,
         isLoading,
         login,
         register,
         logout,
+        token,
+        updateToken,
       }}
     >
       {children}

@@ -89,8 +89,7 @@ export function LoginContainer() {
       </form>
 
       <p className={styles.footer}>
-        Don&apos;t have an account?{" "}
-        <Link href="/signup">Create one</Link>
+        Don&apos;t have an account? <Link href="/signup">Create one</Link>
       </p>
     </Card>
   );
