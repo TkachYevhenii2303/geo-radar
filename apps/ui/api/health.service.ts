@@ -26,7 +26,21 @@ const getReadiness = async (): Promise<{
   };
 };
 
+const getHttp = async (): Promise<{
+  type: string;
+  status: string;
+  message: string;
+}> => {
+  const response: any = await axiosInstance.get("/health/http");
+  return {
+    type: "http",
+    status: response?.info?.["HttpHealthIndicator"]?.status,
+    message: response?.info?.["HttpHealthIndicator"]?.message,
+  };
+};
+
 export default {
   getLiveness,
   getReadiness,
+  getHttp,
 };
