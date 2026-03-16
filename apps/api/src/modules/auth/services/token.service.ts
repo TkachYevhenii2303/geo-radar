@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 import {
   CredentialsJwtPayload,
@@ -128,11 +128,16 @@ export class TokenService {
         secret: map[type],
       });
     } catch (error) {
-      if (error.name === 'TokenExpiredError') {
+      if (error instanceof TokenExpiredError) {
         throw new UnauthorizedException(
           'Refresh token expired. Please login again.',
         );
       }
+
+      if (error instanceof JsonWebTokenError) {
+        throw new UnauthorizedException('Invalid token signature');
+      }
+
       throw new UnauthorizedException('Invalid token');
     }
   }
@@ -141,8 +146,7 @@ export class TokenService {
     refreshToken: string,
     entityManager?: EntityManager,
   ): Promise<JwtResponse> {
-    const payload = await this.verifyToken(refreshToken, tokenType.refresh);
-    const jti = payload.jti;
+    const { jti } = await this.verifyToken(refreshToken, tokenType.refresh);
 
     const refreshTokensRepository =
       entityManager?.getRepository(RefreshTokens) ??
