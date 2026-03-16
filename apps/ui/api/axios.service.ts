@@ -41,16 +41,22 @@ axiosInstance.interceptors.response.use(
 
     if (
       error.response?.status === HttpStatusCode.Unauthorized &&
-      !config._retry
+      !config._retry &&
+      !config.url?.includes('/auth/refresh')
     ) {
       config._retry = true;
       try {
         const { accessToken } = await authService.refreshToken();
         onRefresh(accessToken);
+
+        if (config.headers) {
+          config.headers.Authorization = `Bearer ${accessToken}`;
+        }
+
         return axiosInstance.request(config);
-      } catch {
+      } catch (refreshError) {
         onRefresh(null as unknown as string);
-        return Promise.reject(error);
+        return Promise.reject(refreshError);
       }
     }
     return Promise.reject(error);
