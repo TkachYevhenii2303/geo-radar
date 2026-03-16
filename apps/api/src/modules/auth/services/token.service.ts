@@ -72,6 +72,7 @@ export class TokenService {
         JwtPayload & { jti: string; type: typeof tokenType.refresh }
       >(refreshPayload, {
         secret: this.refreshTokenSecret,
+        expiresIn: this.parseTtlToMs(this.refreshTokenTtl),
       }),
     ]);
 
@@ -100,7 +101,9 @@ export class TokenService {
     refreshTokensRepository: Repository<RefreshTokens>,
   ): Promise<any> {
     const tokenHash = this.hashToken(refreshToken);
-    const expiresAt = new Date(Date.now() + parseInt(this.refreshTokenTtl));
+    const expiresAt = new Date(
+      Date.now() + this.parseTtlToMs(this.refreshTokenTtl),
+    );
     const refreshTokenEntity = refreshTokensRepository.create({
       userId,
       tokenHash,
@@ -120,16 +123,27 @@ export class TokenService {
       [tokenType.refresh]: this.refreshTokenSecret,
     };
 
-    return this.jwtService.verifyAsync(token, {
-      secret: map[type],
-    });
+    try {
+      return await this.jwtService.verifyAsync(token, {
+        secret: map[type],
+      });
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException(
+          'Refresh token expired. Please login again.',
+        );
+      }
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 
   async refreshToken(
     refreshToken: string,
     entityManager?: EntityManager,
   ): Promise<JwtResponse> {
-    const { jti } = await this.verifyToken(refreshToken, tokenType.refresh);
+    const payload = await this.verifyToken(refreshToken, tokenType.refresh);
+    const jti = payload.jti;
+
     const refreshTokensRepository =
       entityManager?.getRepository(RefreshTokens) ??
       this.refreshTokensRepository;
@@ -144,21 +158,22 @@ export class TokenService {
 
     await this.deleteToken(jti);
 
-    const existingEntity = await this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
       where: { id: refreshTokenEntity.userId },
-      relations: ['refreshTokens'],
       select: ['id', 'email'],
     });
 
-    const { accessToken } = await this.generateTokens({
-      userId: existingEntity.id,
-      email: existingEntity.email,
-    });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
 
-    return {
-      accessToken,
-      expiresIn: this.parseTtlToSeconds(this.accessTokenTtl),
-    } as JwtResponse;
+    return await this.generateTokens(
+      {
+        userId: user.id,
+        email: user.email,
+      },
+      entityManager,
+    );
   }
 
   async deleteToken(jti: string): Promise<any> {

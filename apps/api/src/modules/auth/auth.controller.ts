@@ -118,13 +118,14 @@ export class AuthController {
     @Req() req: ExpressRequest,
     @Res({ passthrough: true }) res: ExpressResponse,
   ): Promise<{ accessToken: string; expiresIn: number }> {
-    const refreshToken = req.cookies['refreshToken'];
-    if (!refreshToken) {
+    const oldRefreshToken = req.cookies['refreshToken'];
+
+    if (!oldRefreshToken) {
       throw new UnauthorizedException('Refresh token not found');
     }
 
-    const { accessToken, expiresIn } =
-      await this.authService.refreshToken(refreshToken);
+    const { accessToken, refreshToken, expiresIn } =
+      await this.authService.refreshToken(oldRefreshToken);
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
