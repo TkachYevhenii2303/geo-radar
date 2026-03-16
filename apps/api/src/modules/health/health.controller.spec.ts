@@ -4,6 +4,7 @@ import {
   HealthCheckService,
   TypeOrmHealthIndicator,
   MemoryHealthIndicator,
+  HttpHealthIndicator,
 } from '@nestjs/terminus';
 
 describe('HealthController', () => {
@@ -23,9 +24,10 @@ describe('HealthController', () => {
     pingCheck: jest.fn().mockResolvedValue({ postgres: { status: 'up' } }),
   };
   const memoryIndicator = {
-    checkHeap: jest
-      .fn()
-      .mockResolvedValue({ memory_heap: { status: 'up' } }),
+    checkHeap: jest.fn().mockResolvedValue({ memory_heap: { status: 'up' } }),
+  };
+  const httpIndicator = {
+    pingCheck: jest.fn().mockResolvedValue({ http: { status: 'up' } }),
   };
 
   beforeEach(async () => {
@@ -37,6 +39,7 @@ describe('HealthController', () => {
         { provide: HealthCheckService, useValue: healthCheckService },
         { provide: TypeOrmHealthIndicator, useValue: databaseIndicator },
         { provide: MemoryHealthIndicator, useValue: memoryIndicator },
+        { provide: HttpHealthIndicator, useValue: httpIndicator },
       ],
     }).compile();
 
