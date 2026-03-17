@@ -1,21 +1,15 @@
-// Sidebar dimensions: left:16px + width:256px = 272px right edge + 16px gap = 288px
-$sidebar-expanded-offset: 288px;
-// Collapsed: left:16px + width:64px = 80px + 16px gap = 96px
-$sidebar-collapsed-offset: 96px;
+// Sidebar dimensions are kept in sync via --sidebar-offset CSS variable
+// set dynamically by Sidebar.tsx on the :root element.
+// Fallback: left:20px + rail:80px + panel:240px + gap:16px = 356px (expanded)
 
 .main {
-  margin-left: $sidebar-expanded-offset;
+  margin-left: var(--sidebar-offset, 356px);
   min-height: 100vh;
-  transition: margin-left 0.25s ease;
+  transition: margin-left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 
-  // Tablet: sidebar is collapsed (64px rail only)
-  @media (max-width: 1023px) {
-    margin-left: $sidebar-collapsed-offset;
-  }
-
-  // Mobile: sidebar is an overlay, content takes full width
+  // Mobile: sidebar becomes an overlay, content takes full width
   @media (max-width: 767px) {
-    margin-left: 0;
+    margin-left: 0 !important;
     padding-top: 64px; // space for hamburger button
   }
 }

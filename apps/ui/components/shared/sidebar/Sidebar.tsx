@@ -60,7 +60,13 @@ export function Sidebar() {
 
   // One-time init: collapse on tablet, load theme preference
   useEffect(() => {
-    if (window.innerWidth < 1024) setIsExpanded(false);
+    const collapsed = window.innerWidth < 1024;
+    if (collapsed) setIsExpanded(false);
+    // Set initial CSS variable so layout.module.scss can read it before first toggle
+    document.documentElement.style.setProperty(
+      "--sidebar-offset",
+      collapsed ? "116px" : "356px"
+    );
 
     const saved = localStorage.getItem("theme");
     const prefersDark = window.matchMedia(
@@ -70,6 +76,14 @@ export function Sidebar() {
     setIsDark(dark);
     document.documentElement.dataset.theme = dark ? "dark" : "";
   }, []);
+
+  // Keep CSS variable in sync with expanded state
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--sidebar-offset",
+      isExpanded ? "356px" : "116px"
+    );
+  }, [isExpanded]);
 
   // Lock body scroll while mobile overlay is open
   useEffect(() => {
