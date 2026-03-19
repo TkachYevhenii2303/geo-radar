@@ -4,11 +4,13 @@ on:
   push:
     branches: [main, stage, develop]
     paths:
-      - "**/*.{js,ts,jsx,tsx,json,yml,yaml,md}"
+      - "apps/api/**"
+      - "apps/ui/**"
   pull_request:
     branches: [main, stage, develop]
     paths:
-      - "**/*.{js,ts,jsx,tsx,json,yml,yaml,md}"
+      - "apps/api/**"
+      - "apps/ui/**"
   schedule:
     - cron: "0 6 * * 1" # every Mon at 6:00 UTC
 
