@@ -1,26 +1,27 @@
 import { defineConfig, globalIgnores } from 'eslint/config';
-import nextVitals from 'eslint-config-next/core-web-vitals';
-import nextTs from 'eslint-config-next/typescript';
+import tseslint from 'typescript-eslint';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
-  // Override default ignores of eslint-config-next.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig([
+  ...tseslint.configs.recommended,
   globalIgnores([
-    // Default ignores of eslint-config-next:
-    '.next/**',
-    'out/**',
-    'build/**',
-    'next-env.d.ts',
+    'dist/**',
+    'node_modules/**',
+    'coverage/**',
   ]),
+  {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: __dirname,   // вказуємо на apps/api/
+        project: './tsconfig.json',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+    },
+  },
 ]);
-
-const rules = {
-  '@typescript-eslint/no-explicit-any': 'off',
-  '@typescript-eslint/no-unused-vars': 'off',
-};
-
-export default {
-  ...eslintConfig,
-  rules,
-};

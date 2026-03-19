@@ -1,0 +1,47 @@
+name: Semgrep workflow
+
+on:
+  push:
+    branches: [main, stage, develop]
+    paths:
+      - "apps/api/**"
+      - "apps/ui/**"
+  pull_request:
+    branches: [main, stage, develop]
+    paths:
+      - "apps/api/**"
+      - "apps/ui/**"
+  schedule:
+    - cron: "0 6 * * 1" # every Mon at 6:00 UTC
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  semgrep:
+    name: SEMGREP SAST scan
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run SEMGREP
+        uses: semgrep/semgrep-action@v2
+        with:
+          config: >-
+            p/nodejs
+            p/jwt
+            p/owasp-top-ten
+            p/react
+            p/typescript
+            p/secrets
+          generateSarif: true
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif

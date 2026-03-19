@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Read these on-demand based on task relevance:
 
-- **[PROJECT_ARCHITECTURE](./documents/PROJECT_ARCHITECTURE.md)** — Module breakdown, project structure and architecture, shared patterns
+- **[PROJECT_OVERVIEW](./documents/PROJECT_OVERVIEW.md)** — Module breakdown, project structure and architecture, shared patterns
 
 ## Monorepo Map
 
