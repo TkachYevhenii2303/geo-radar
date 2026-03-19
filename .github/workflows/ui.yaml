@@ -1,0 +1,104 @@
+name: Frontend workflow
+
+on:
+  push:
+    branches: [main, stage, develop]
+    paths:
+      - "apps/ui/**"
+  pull_request:
+    branches: [main, stage, develop]
+    paths:
+      - "apps/ui/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
+
+defaults:
+  run:
+    working-directory: apps/ui
+
+jobs:
+  freeze:
+    name: Freeze check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'stage' || github.base_ref == 'develop')
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Check if friday ( freeze )
+        run: |
+          DAY_OF_WEEK=$(date -u +%u)
+          echo "Current UTC day of week: $DAY_OF_WEEK"
+          echo "1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday, 7 = Sunday"
+          if [ "$DAY_OF_WEEK" -eq 5 ]; then
+            echo "::error::🚫 DEPLOY FREEZE: Merges to main/stage are blocked on Fridays!"
+            echo "::error::Please wait until Monday or request an exception from the team lead."
+            exit 1
+          fi
+          echo "✅ Not Friday today - merges are allowed!"
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "yarn"
+          cache-dependency-path: apps/ui/yarn.lock
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint
+
+    build:
+      name: Build
+      runs-on: ubuntu-latest
+      needs: [lint]
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+          with:
+            node-version: ${{ env.NODE_VERSION }}
+            cache: "yarn"
+            cache-dependency-path: apps/ui/yarn.lock
+        - run: yarn install --frozen-lockfile
+        - name: Build Next.js
+          run: yarn build
+          env:
+            NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+
+    docker:
+      name: Docker build & push
+      runs-on: ubuntu-latest
+      needs: [build]
+      if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+      defaults:
+        run:
+          working-directory: .
+      steps:
+        - uses: actions/checkout@v4
+
+        - uses: docker/setup-buildx-action@v3
+
+        - name: Login to GitHub Container Registry
+          uses: docker/login-action@v3
+          with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: Build and push
+          uses: docker/build-push-action@v6
+          with:
+            context: apps/ui
+            push: ${{ github.ref == 'refs/heads/main' }}
+            tags: ghcr.io/${{ github.repository }}/ui:latest
+            build-args: |
+              NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            cache-from: type=gha
+            cache-to: type=gha,mode=max
