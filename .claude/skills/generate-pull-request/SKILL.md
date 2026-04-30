@@ -1,4 +1,9 @@
-# SKILL: Automated Atomic Commits & Visual Pull Requests
+---
+name: generate-pull-request
+description: Automated Atomic Commits & Visual Pull Requests
+disable-model-invocation: true
+context: fork
+---
 
 ## Context
 
