@@ -96,7 +96,10 @@ $color-avatar-bg: #3b5bdb;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   z-index: 200;
-  transition: width $transition-speed $easing;
+  transition:
+    width $transition-speed $easing,
+    background 0.3s ease,
+    border-color 0.3s ease;
 
   // Entrance animation
   animation: slideInLeft 0.6s $easing forwards;
@@ -440,6 +443,109 @@ $color-avatar-bg: #3b5bdb;
   flex-shrink: 0;
   user-select: none;
   box-shadow: 0 2px 6px rgba(59, 91, 219, 0.2);
+}
+
+// ── Dark mode ─────────────────────────────────────────────────────────────────
+:global([data-theme="dark"]) {
+  .hamburger {
+    background: var(--dm-bg);
+    border-color: var(--dm-border);
+    color: var(--dm-text-primary);
+
+    &:hover {
+      background: var(--dm-hover-bg);
+    }
+  }
+
+  .sidebar {
+    background: var(--dm-bg);
+    border-color: var(--dm-border);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .rail {
+    background: var(--dm-bg);
+    border-color: var(--dm-border);
+  }
+
+  .railItem {
+    color: var(--dm-text-muted);
+
+    &:hover {
+      background: var(--dm-hover-bg);
+      color: var(--dm-text-primary);
+    }
+
+    &.active {
+      background: $color-active-bg;
+      color: $color-active-text;
+    }
+  }
+
+  .railToggle {
+    border-color: var(--dm-border);
+
+    &:hover {
+      background: var(--dm-hover-bg);
+    }
+  }
+
+  .panel {
+    background: var(--dm-panel-bg);
+  }
+
+  .brandName {
+    color: var(--dm-text-primary);
+  }
+
+  .collapseBtn {
+    background: var(--dm-bg);
+    border-color: var(--dm-border);
+    color: var(--dm-text-muted);
+
+    &:hover {
+      background: var(--dm-hover-bg);
+      color: var(--dm-text-primary);
+    }
+  }
+
+  .sectionLabel {
+    color: var(--dm-text-muted);
+  }
+
+  .panelItem {
+    color: var(--dm-text-muted);
+
+    &:hover {
+      background: var(--dm-hover-bg);
+      color: var(--dm-text-primary);
+    }
+
+    &.active {
+      background: var(--dm-bg);
+      color: $color-active-bg;
+    }
+  }
+
+  .panelBottom {
+    border-color: var(--dm-border);
+    background: var(--dm-bg);
+  }
+
+  .profile {
+    &:hover {
+      border-color: var(--dm-border);
+      background: var(--dm-hover-bg);
+    }
+  }
+
+  .profileName {
+    color: var(--dm-text-primary);
+  }
+
+  .profileEmail {
+    color: var(--dm-text-muted);
+  }
 }
 
 // ── Responsive ────────────────────────────────────────────────────────────────

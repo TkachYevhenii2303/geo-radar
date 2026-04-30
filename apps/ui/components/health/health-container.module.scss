@@ -91,3 +91,24 @@ $color-primary: #3b5bdb;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
+
+// ── Dark mode ─────────────────────────────────────────────────────────────────
+:global([data-theme="dark"]) {
+  .title {
+    color: var(--dm-text-primary);
+  }
+
+  .lastChecked {
+    color: var(--dm-text-muted);
+  }
+
+  .toggle {
+    color: var(--dm-text-muted);
+  }
+
+  .error {
+    background: var(--dm-down-bg);
+    border-color: #dc2626;
+    color: #fca5a5;
+  }
+}

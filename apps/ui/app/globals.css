@@ -90,13 +90,34 @@
 }
 
 body {
-  /* background: var(--background); */
-  background: #fff;
-  color: var(--foreground);
+  background: var(--app-bg, #fff);
+  color: var(--app-text, var(--foreground));
   font-family: var(--font-sans), Arial, sans-serif;
 
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   overflow: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] {
+  --app-bg: #0f172a;
+  --app-text: #e2e8f0;
+
+  /* Sidebar / panel tokens */
+  --dm-bg: #1e2235;
+  --dm-panel-bg: #181d30;
+  --dm-text-primary: #e2e8f0;
+  --dm-text-muted: #94a3b8;
+  --dm-border: #334155;
+  --dm-hover-bg: #2d3748;
+  --dm-card-bg: #1e2235;
+
+  /* Status colors adjust slightly for dark backgrounds */
+  --dm-up-bg: #052e16;
+  --dm-up-border: #166534;
+  --dm-down-bg: #450a0a;
+  --dm-down-border: #7f1d1d;
+  --dm-loading-bg: #1e293b;
 }

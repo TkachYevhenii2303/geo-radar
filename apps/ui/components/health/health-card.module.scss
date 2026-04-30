@@ -152,6 +152,60 @@ $color-loading-bg: #f9fafb;
   border-top: 1px solid $color-border;
 }
 
+// ── Dark mode ─────────────────────────────────────────────────────────────────
+:global([data-theme="dark"]) {
+  .card {
+    background: var(--dm-card-bg);
+    border-color: var(--dm-border);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    &.up {
+      border-color: var(--dm-up-border);
+    }
+
+    &.down {
+      border-color: var(--dm-down-border);
+    }
+  }
+
+  .label {
+    color: var(--dm-text-primary);
+  }
+
+  .description {
+    color: var(--dm-text-muted);
+  }
+
+  .message {
+    color: var(--dm-text-muted);
+    border-color: var(--dm-border);
+  }
+
+  .badge {
+    .up & {
+      background: var(--dm-up-bg);
+      border-color: var(--dm-up-border);
+      color: #4ade80;
+    }
+
+    .down & {
+      background: var(--dm-down-bg);
+      border-color: var(--dm-down-border);
+      color: #f87171;
+    }
+
+    .loading & {
+      background: var(--dm-loading-bg);
+      border-color: var(--dm-border);
+      color: var(--dm-text-muted);
+    }
+  }
+}
+
 @keyframes pulse-green {
   0%, 100% {
     opacity: 1;

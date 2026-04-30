@@ -95,13 +95,6 @@ export function HealthContainer() {
       message: http?.message,
       isLoading: isLoading && !http,
     },
-    {
-      label: "HTTP",
-      description: "Is the application able to make HTTP requests?",
-      status: http?.status,
-      message: http?.message,
-      isLoading: isLoading && !http,
-    },
   ];
 
   return (

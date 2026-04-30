@@ -1,6 +1,7 @@
 .crawling_container {
   width: 100%;
   background: #6c757d;
+  transition: background 0.3s ease;
   backdrop-filter: blur(10px);
   border-radius: 12px;
 
@@ -35,6 +36,21 @@
       &:active {
         outline: none;
         border: none;
+      }
+    }
+  }
+}
+
+:global([data-theme="dark"]) {
+  .crawling_container {
+    background: var(--dm-card-bg);
+
+    &__form {
+      input,
+      button {
+        background: var(--dm-hover-bg);
+        color: var(--dm-text-primary);
+        border: 1px solid var(--dm-border);
       }
     }
   }
